@@ -156,7 +156,8 @@ export default function PillNavbar() {
                   initial={{ opacity: 0, y: 6, scale: 0.97 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 6 }}
-                  className="glass-strong absolute right-0 top-12 w-52 rounded-(--radius-card) p-2"
+                  className="absolute right-0 top-12 w-52 rounded-(--radius-card) border bg-(--bg) p-2"
+                  style={{ borderColor: 'var(--glass-border)', boxShadow: 'var(--shadow-glass-lg)' }}
                 >
                   <p className="truncate px-3 py-2 text-sm font-medium">{user.name}</p>
                   {user.role === 'admin' && (
@@ -192,7 +193,8 @@ export default function PillNavbar() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="glass-strong absolute top-full mt-2 w-[92vw] max-w-5xl rounded-(--radius-card) p-3 lg:hidden"
+            className="absolute top-full mt-2 w-[92vw] max-w-5xl rounded-(--radius-card) border bg-(--bg) p-3 lg:hidden"
+            style={{ borderColor: 'var(--glass-border)', boxShadow: 'var(--shadow-glass-lg)' }}
           >
             {LINKS.map((l) => (
               <Link key={l.to} to={l.to} className="block rounded-xl px-4 py-3 text-sm font-medium">

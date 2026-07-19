@@ -37,21 +37,32 @@ export default function AdminLayout() {
       </aside>
 
       <main className="min-w-0 flex-1 pb-24 lg:pb-6">
+        {/* mobile header — brand + way back to the storefront */}
+        <div className="mb-5 flex items-center justify-between lg:hidden">
+          <div>
+            <p className="heading text-base">RamKishan Siyaram</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted">Admin panel</p>
+          </div>
+          <Link to="/" className="btn-secondary">
+            <Store size={14} strokeWidth={1.5} /> View store
+          </Link>
+        </div>
         <Outlet />
       </main>
 
-      {/* bottom tabs — mobile */}
-      <nav className="glass-strong fixed inset-x-3 bottom-3 z-50 flex justify-around rounded-full px-2 py-2 lg:hidden">
+      {/* bottom tabs — mobile: equal-width grid so all six fit */}
+      <nav className="glass-strong fixed inset-x-2 bottom-2 z-50 grid grid-cols-6 gap-0.5 rounded-2xl p-1 lg:hidden">
         {LINKS.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to} to={to} end={end}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 rounded-full px-2.5 py-1.5 text-[10px] ${
+              `flex min-w-0 flex-col items-center gap-0.5 rounded-xl px-0.5 py-1.5 text-[9px] ${
                 isActive ? 'bg-accent text-accent-fg' : 'text-muted'
               }`
             }
           >
-            <Icon size={18} strokeWidth={1.5} /> {label}
+            <Icon size={17} strokeWidth={1.5} />
+            <span className="w-full truncate text-center">{label}</span>
           </NavLink>
         ))}
       </nav>
