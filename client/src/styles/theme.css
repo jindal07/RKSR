@@ -1,0 +1,257 @@
+@import 'tailwindcss';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+
+/* Geomini — self-hosted (Google Fonts has no fontsource package for it).
+   Single-weight family; bold is synthesized by the browser. */
+@font-face {
+  font-family: 'Geomini';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../assets/fonts/geomini-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Geomini';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../assets/fonts/geomini-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
+    U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* monochrome ramp — 50 (near-white) → 950 (near-black) */
+  --color-mono-50: #fafafa;
+  --color-mono-100: #f2f2f2;
+  --color-mono-200: #e3e3e3;
+  --color-mono-300: #c9c9c9;
+  --color-mono-400: #a6a6a6;
+  --color-mono-500: #8a8a8a;
+  --color-mono-600: #6b6b6b;
+  --color-mono-700: #4d4d4d;
+  --color-mono-800: #303030;
+  --color-mono-900: #1a1a1a;
+  --color-mono-950: #111111;
+  --color-ink: #0a0a0a;
+
+  /* status colors are per-theme — see :root/.dark below */
+
+  --font-display: 'Geomini', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --radius-card: 1.25rem;
+  --radius-field: 0.875rem;
+
+  --shadow-glass: 0 8px 32px rgb(0 0 0 / 0.08);
+  --shadow-glass-lg: 0 16px 48px rgb(0 0 0 / 0.12);
+}
+
+:root {
+  --banner-h: 0px; /* measured height of the announcement banner (0 when hidden) */
+  --bg: var(--color-mono-50);
+  --surface: rgb(255 255 255 / 0.55);
+  --surface-strong: rgb(255 255 255 / 0.8);
+  --glass-border: rgb(0 0 0 / 0.08);
+  --border-strong: rgb(0 0 0 / 0.45); /* interactive control boundaries — ≥3:1 vs bg */
+  --text: var(--color-mono-950);
+  --text-muted: var(--color-mono-600);
+  --accent: #000000;
+  --accent-fg: #ffffff;
+  --highlight: var(--color-mono-300);
+  /* desaturated status — tuned per theme so text + badge tints pass WCAG AA */
+  --success: #3d5c3d;
+  --error: #8f4a3e;
+  --warning: #7a5f2f;
+}
+.dark {
+  --bg: var(--color-ink);
+  --surface: rgb(24 24 24 / 0.5);
+  --surface-strong: rgb(18 18 18 / 0.82);
+  --glass-border: rgb(255 255 255 / 0.12);
+  --border-strong: rgb(255 255 255 / 0.4);
+  --text: var(--color-mono-50);
+  --text-muted: var(--color-mono-400);
+  --accent: #ffffff;
+  --accent-fg: #000000;
+  --highlight: var(--color-mono-700);
+  --success: #8fae8f;
+  --error: #c98d80;
+  --warning: #c5a05e;
+  --shadow-glass: 0 8px 32px rgb(0 0 0 / 0.35);
+  --shadow-glass-lg: 0 16px 48px rgb(0 0 0 / 0.5);
+}
+
+/* expose semantic tokens as tailwind colors: bg-surface, text-body, etc. */
+@theme inline {
+  --color-body: var(--text);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-highlight: var(--highlight);
+  --color-success: var(--success);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* core glassmorphism recipe — cards, tiles, panels */
+@utility glass {
+  background: var(--surface);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass);
+}
+/* stronger — navbar, modals, drawers */
+@utility glass-strong {
+  background: var(--surface-strong);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-glass-lg);
+}
+@utility glass-hover {
+  transition:
+    transform 200ms ease-out,
+    box-shadow 200ms ease-out,
+    border-color 200ms ease-out;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-glass-lg);
+    border-color: var(--text-muted);
+  }
+}
+
+/* outlined display type — big typographic moments on the home page */
+@utility text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--text-muted);
+}
+
+/* infinite marquee — pure CSS so it can't be suppressed by JS animation config.
+   Track holds two identical copies; sliding -50% = exactly one copy = seamless. */
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@utility marquee-track {
+  display: inline-flex;
+  width: max-content;
+  animation: marquee-x var(--marquee-duration, 28s) linear infinite;
+}
+/* @utility marquee-reverse {
+  animation-direction: reverse;
+} */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40;
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+  .btn-primary:not(:disabled):hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+  }
+  .btn-secondary {
+    @apply glass inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200;
+    color: var(--text);
+  }
+  .btn-secondary:hover {
+    border-color: var(--text);
+  }
+
+  .field {
+    @apply glass w-full rounded-(--radius-field) px-4 py-3 text-sm outline-none transition-shadow;
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+  .field::placeholder {
+    color: var(--text-muted);
+  }
+  .field:focus {
+    box-shadow: 0 0 0 2px var(--text);
+  }
+
+  .heading {
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+  }
+
+  .chip {
+    @apply inline-flex items-center justify-center rounded-full border px-4 py-1.5 text-sm transition-colors duration-150 cursor-pointer;
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+  .chip:hover {
+    border-color: var(--text);
+  }
+  .chip-active {
+    background: var(--accent);
+    color: var(--accent-fg);
+    border-color: var(--accent);
+  }
+}
+
+/* compact controls on phones — restored to full size from 640px up */
+@media (max-width: 639px) {
+  .btn-primary {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.8125rem;
+  }
+  .btn-secondary {
+    padding: 0.55rem 1.1rem;
+    font-size: 0.8125rem;
+  }
+  .field {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.8125rem;
+  }
+  .chip {
+    padding: 0.3rem 0.85rem;
+    font-size: 0.8125rem;
+  }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .glass,
+  .glass-strong {
+    background: var(--bg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-hover:hover,
+  .btn-primary:not(:disabled):hover {
+    transform: none;
+  }
+}

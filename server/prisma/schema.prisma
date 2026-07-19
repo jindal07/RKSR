@@ -1,0 +1,211 @@
+generator client {
+  provider = "prisma-client-js"
+  // native = local dev; rhel = Vercel's serverless runtime
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  customer
+  admin
+}
+
+enum Category {
+  men
+  women
+  kids
+  accessories
+}
+
+enum OrderStatus {
+  placed
+  confirmed
+  shipped
+  delivered
+  cancelled
+}
+
+enum PaymentMethod {
+  razorpay
+  cod
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  refunded
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(customer)
+  phone        String?
+  addresses    Address[]
+  orders       Order[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  label     String?
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  pincode   String
+  phone     String?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Prices stored as whole rupees (Int) — clothing prices don't need paise.
+model Product {
+  id           String           @id @default(uuid())
+  name         String
+  slug         String           @unique
+  description  String
+  category     Category
+  subcategory  String
+  brand        String?
+  price        Int
+  mrp          Int
+  isActive     Boolean          @default(true)
+  isFeatured   Boolean          @default(false)
+  ratingsAvg   Float            @default(0)
+  ratingsCount Int              @default(0)
+  images       ProductImage[]
+  variants     ProductVariant[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([category, subcategory])
+  @@index([isFeatured])
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
+
+  @@index([productId])
+}
+
+model ProductVariant {
+  id         String      @id @default(uuid())
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String
+  size       String
+  color      String
+  sku        String      @unique
+  stock      Int         @default(0)
+  orderItems OrderItem[]
+
+  @@unique([productId, size, color])
+  @@index([productId])
+}
+
+model Order {
+  id            String               @id @default(uuid())
+  orderNumber   String               @unique
+  user          User                 @relation(fields: [userId], references: [id])
+  userId        String
+  // shipping address snapshot (copied at checkout)
+  shipName      String
+  shipPhone     String
+  shipLine1     String
+  shipLine2     String?
+  shipCity      String
+  shipState     String
+  shipPincode   String
+  subtotal      Int
+  shippingFee   Int                  @default(0)
+  discount      Int                  @default(0)
+  total         Int
+  status        OrderStatus          @default(placed)
+  items         OrderItem[]
+  payment       Payment?
+  statusHistory OrderStatusHistory[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id            String          @id @default(uuid())
+  order         Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId       String
+  variant       ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  variantId     String?
+  productSlug   String
+  nameSnapshot  String
+  imageSnapshot String?
+  size          String
+  color         String
+  priceSnapshot Int
+  qty           Int
+
+  @@index([orderId])
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  order             Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId           String        @unique
+  method            PaymentMethod
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  signature         String?
+  status            PaymentStatus @default(pending)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+// Single-row store settings for the storefront announcement banner (id is always 1)
+model Banner {
+  id        Int       @id @default(1)
+  enabled   Boolean   @default(false)
+  text      String    @default("")
+  linkText  String?
+  linkUrl   String?
+  endsAt    DateTime?
+  updatedAt DateTime  @updatedAt
+}
+
+// Admin-configurable people contact cards shown above the storefront footer
+model ContactCard {
+  id        String   @id @default(uuid())
+  avatarUrl String?
+  name      String
+  role      String   @default("")
+  bio       String   @default("")
+  links     Json     @default("[]") // [{ label, url }]
+  sortOrder Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+model OrderStatusHistory {
+  id        String   @id @default(uuid())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  status    String
+  note      String?
+  createdAt DateTime @default(now())
+}
