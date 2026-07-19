@@ -21,9 +21,13 @@ cd client && npm run dev
 First-time setup only:
 
 ```bash
-cd server && npm install && npx prisma migrate dev && npm run seed
-cd client && npm install
+cd server && npm install
+cp .env.example .env        # then adjust values if needed (defaults work for dev)
+npx prisma migrate dev && npm run seed
+cd ../client && npm install
 ```
+
+All environment variables are documented in [server/.env.example](server/.env.example).
 
 ## Logins
 
